@@ -2,6 +2,18 @@
 #define SBUS_FOOTER 0X00
 #define HEADER_LIDAR 0X59
 
+
+double kp = 0
+double ki = 0;
+double kd = 0;
+int throttle = 0;
+int error_throttle = 0;
+int prev_error_throttle =0;
+int integral_throttle = 0;
+int integral_throttle_prev = 0;
+#define i_limit 68
+
+
 bool header_detected_lidar = false;
 int lidar_index = 0;
 
@@ -122,6 +134,24 @@ void initLidar(){
   Serial1.begin(115200,SERIAL_8N1);
 }
 
+
+int handelPID(int measured_distance , int current_distance , int dt)
+{
+  error_throttle = current_distance - measured_distance;
+integral_throttle =  integral_throttle_prev + error_throttle*dt
+
+integral_throttle = contsraint(integral_throttle , -i_limit , i_limit);
+
+throttle = kp* error_throttle + ki* integral_throttle + kd*float(error_throttle - prev_error_throttle)/dt ;
+
+
+
+
+
+
+integral_throttle_prev = integral_throttle;
+prev_error_throttle = error_throttle;
+}
 void readLidar(){
   while(Serial1.available()){
     prev_buffer_lidar = buffer_lidar;
